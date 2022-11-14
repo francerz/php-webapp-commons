@@ -1,0 +1,7 @@
+{
+    "require": {
+        "psr/http-message": "^1.0",
+        "psr/http-server-middleware": "^1.0",
+        "francerz/console": "^0.1.0"
+    }
+}
