@@ -6,6 +6,7 @@ use ErrorException;
 use Exception;
 use Francerz\Console\BackColors;
 use Francerz\Console\ForeColors;
+use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
@@ -13,6 +14,12 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 class DebugMiddleware implements MiddlewareInterface
 {
+    private $responseFactory;
+
+    public function __construct(?ResponseFactoryInterface $responseFactory = null)
+    {
+        $this->responseFactory = $responseFactory;
+    }
     private function setErrorHandler()
     {
         set_error_handler(function ($errno, $error, $errfile, $errline) {
@@ -35,6 +42,9 @@ class DebugMiddleware implements MiddlewareInterface
                     'Exception ' . get_class($ex) . ": {$ex->getMessage()}" .
                     BackColors::DEFAULT . ForeColors::DEFAULT
                 );
+            }
+            if (isset($this->responseFactory)) {
+                return $this->responseFactory->createResponse(500);
             }
         }
     }
