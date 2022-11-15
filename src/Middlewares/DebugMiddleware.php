@@ -16,7 +16,7 @@ class DebugMiddleware implements MiddlewareInterface
 {
     private $responseFactory;
 
-    public function __construct(?ResponseFactoryInterface $responseFactory = null)
+    public function __construct(ResponseFactoryInterface $responseFactory)
     {
         $this->responseFactory = $responseFactory;
     }
@@ -36,16 +36,20 @@ class DebugMiddleware implements MiddlewareInterface
             $this->setErrorHandler();
             return $handler->handle($request);
         } catch (Exception $ex) {
+            $response = $this->responseFactory->createResponse(500);
             if (php_sapi_name() === 'cli-server') {
+                $errorString = get_class($ex) . ': ' . $ex->getMessage();
                 error_log(
-                    BackColors::RED . ForeColors::WHITE .
-                    'Exception ' . get_class($ex) . ": {$ex->getMessage()}" .
-                    BackColors::DEFAULT . ForeColors::DEFAULT
+                    BackColors::RED .
+                    ForeColors::WHITE .
+                    $errorString .
+                    BackColors::DEFAULT .
+                    ForeColors::DEFAULT
                 );
+                $response = $response->withHeader('Content-Type', 'text/plain');
+                $response->getBody()->write($errorString);
             }
-            if (isset($this->responseFactory)) {
-                return $this->responseFactory->createResponse(500);
-            }
+            return $response;
         }
     }
 }
