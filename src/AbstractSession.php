@@ -13,7 +13,7 @@ abstract class AbstractSession
     {
         switch (session_status()) {
             case PHP_SESSION_NONE:
-                if (!headers_sent()) {
+                if (headers_sent()) {
                     throw new RuntimeException('Session start failed! Headers already sent.');
                 }
                 session_start();
@@ -38,10 +38,10 @@ abstract class AbstractSession
      * @param string $key
      * @return mixed
      */
-    public static function get(string $key)
+    public static function get(string $key, $default = null)
     {
         static::start();
-        return $_SESSION[$key] ?? null;
+        return $_SESSION[$key] ?? $default;
     }
 
     /**
