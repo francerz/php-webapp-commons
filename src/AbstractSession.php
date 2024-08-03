@@ -60,6 +60,18 @@ abstract class AbstractSession
         if (session_status() !== PHP_SESSION_ACTIVE) {
             return;
         }
+        session_unset();
         session_destroy();
+    }
+
+    public static function regenerateId(bool $deleteOld = false): bool
+    {
+        static::start();
+        return session_regenerate_id($deleteOld);
+    }
+
+    public static function iniSet(string $config, $value)
+    {
+        ini_set("session.$config", $value);
     }
 }
